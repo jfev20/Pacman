@@ -10,7 +10,7 @@ class PathmapTile;
 class Ghost : public MovableGameEntity
 {
 public:
-	Ghost(const Vector2f& aPosition);
+	Ghost(const Vector2f& aPosition, Graphic* aGraphic);
 	~Ghost(void);
 
 	void Update(float aTime, World* aWorld);
@@ -22,7 +22,7 @@ public:
 
 	void Die(World* aWorld);
 
-	void Draw(Drawer* aDrawer);
+	/*void Draw(Drawer* aDrawer);*/
 
 protected:
 
@@ -30,6 +30,8 @@ protected:
 	int myDesiredMovementY;
 
 	std::list<PathmapTile*> myPath;
+
+	Graphic* ghostGraphic;
 
 };
 

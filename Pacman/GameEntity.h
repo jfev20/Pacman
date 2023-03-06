@@ -2,13 +2,14 @@
 #define GAMEENTITY_H
 
 #include "Vector2f.h"
+#include "Graphic.h"
 
 class Drawer;
 
 class GameEntity
 {
 public:
-	GameEntity(const Vector2f& aPosition, const char* anImage);
+	GameEntity(const Vector2f& aPosition, Graphic* graphic);
 	~GameEntity(void);
 
 	Vector2f GetPosition() const { return myPosition; }
@@ -24,7 +25,7 @@ protected:
 
 	bool myIdMarkedForDeleteFlag;
 	Vector2f myPosition;
-	const char* myImage;
+	Graphic* gameEntityGraphic;
 };
 
 #endif // GAMEENTITY_H

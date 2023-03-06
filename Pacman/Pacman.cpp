@@ -9,6 +9,7 @@
 #include "Avatar.h"
 #include "World.h"
 #include "Ghost.h"
+#include "Graphic.h"
 
 Pacman* Pacman::Create(Drawer* aDrawer)
 {
@@ -32,8 +33,30 @@ Pacman::Pacman(Drawer* aDrawer)
 , myLives(3)
 , myGhostGhostCounter(0.f)
 {
-	myAvatar = new Avatar(Vector2f(13*22,22*22));
-	myGhost = new Ghost(Vector2f(13*22,13*22));
+	Graphic* avatarGraphic = nullptr;
+	Graphic* ghostGraphic = nullptr;
+	std::list<std::string> avatarPaths{ 
+		"closed_right_32.png",
+		"open_right_32.png",
+		"closed_down_32.png",
+		"open_down_32.png",
+		"closed_left_32.png",
+		"open_left_32.png",
+		"closed_up_32.png",
+		"open_up_32.png"
+	};
+	std::list<std::string> ghostPaths{
+		"ghost_32.png",
+		"Ghost_Dead_32.png",
+		"Ghost_Vulnerable_32.png"
+	};
+
+	avatarGraphic = Graphic::Create(myDrawer, avatarPaths, 32, 32);
+	myAvatar = new Avatar(Vector2f(13*22,22*22), avatarGraphic);
+
+	ghostGraphic = Graphic::Create(myDrawer, ghostPaths, 32, 32);
+	myGhost = new Ghost(Vector2f(13*22,13*22), ghostGraphic);
+
 	myWorld = new World();
 }
 
@@ -43,7 +66,7 @@ Pacman::~Pacman(void)
 
 bool Pacman::Init()
 {
-	myWorld->Init();
+	myWorld->Init(myDrawer);
 
 	return true;
 }

@@ -7,7 +7,7 @@
 class BigDot : public StaticGameEntity
 {
 public:
-	BigDot(Vector2f aPosition);
+	BigDot(Vector2f aPosition, Graphic* aGraphic);
 	~BigDot(void);
 };
 

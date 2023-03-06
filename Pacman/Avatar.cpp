@@ -1,8 +1,9 @@
 #include "Avatar.h"
 
-Avatar::Avatar(const Vector2f& aPosition)
-: MovableGameEntity(aPosition, "open_32.png")
+Avatar::Avatar(const Vector2f& aPosition, Graphic* aGraphic)
+: MovableGameEntity(aPosition, aGraphic)
 {
+	gameEntityGraphic->SetImage("open_right_32.png");
 
 }
 

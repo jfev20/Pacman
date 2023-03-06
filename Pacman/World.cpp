@@ -17,11 +17,16 @@ World::~World(void)
 {
 }
 
-void World::Init()
+void World::Init(Drawer* myDrawer)
 {
+	std::list<std::string> paths;
+	paths.push_front("playfield.png");
+	environment = Graphic::Create(myDrawer, paths, 1024, 768);
+	environment->SetImage("playfield.png");
+	
 	InitPathmap();
-	InitDots();
-	InitBigDots();
+	InitDots(myDrawer);
+	InitBigDots(myDrawer);
 }
 
 bool World::InitPathmap()
@@ -48,10 +53,14 @@ bool World::InitPathmap()
 	return true;
 }
 
-bool World::InitDots()
+bool World::InitDots(Drawer* myDrawer)
 {
 	std::string line;
 	std::ifstream myfile ("map.txt");
+
+	Graphic* dotGraphic = nullptr;
+	std::list<std::string> dotAssets{ "Small_Dot_32.png" };
+
 	if (myfile.is_open())
 	{
 		int lineIndex = 0;
@@ -62,7 +71,8 @@ bool World::InitDots()
 			{
 				if (line[i] == '.')
 				{
-					Dot* dot = new Dot(Vector2f(i*22, lineIndex*22));
+					dotGraphic = Graphic::Create(myDrawer, dotAssets, 32, 32);
+					Dot* dot = new Dot(Vector2f(i*22, lineIndex*22), dotGraphic);
 					myDots.push_back(dot);
 				}
 			}
@@ -75,10 +85,14 @@ bool World::InitDots()
 	return true;
 }
 
-bool World::InitBigDots()
+bool World::InitBigDots(Drawer* myDrawer)
 {
 	std::string line;
 	std::ifstream myfile ("map.txt");
+
+	Graphic* bigDotGraphic = nullptr;
+	std::list<std::string> bigDotAssets{ "Big_Dot_32.png" };
+
 	if (myfile.is_open())
 	{
 		int lineIndex = 0;
@@ -89,7 +103,8 @@ bool World::InitBigDots()
 			{
 				if (line[i] == 'o')
 				{
-					BigDot* dot = new BigDot(Vector2f(i*22, lineIndex*22));
+					bigDotGraphic = Graphic::Create(myDrawer, bigDotAssets, 32, 32);
+					BigDot* dot = new BigDot(Vector2f(i*22, lineIndex*22), bigDotGraphic);
 					myBigDots.push_back(dot);
 				}
 			}
@@ -104,7 +119,7 @@ bool World::InitBigDots()
 
 void World::Draw(Drawer* aDrawer)
 {
-	aDrawer->Draw("playfield.png");
+	environment->Draw(aDrawer, 0, 0);
 
 	for(std::list<Dot*>::iterator list_iter = myDots.begin(); list_iter != myDots.end(); list_iter++)
 	{

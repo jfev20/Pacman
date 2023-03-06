@@ -4,6 +4,8 @@
 #include <list>
 #include "Vector2f.h"
 
+#include "Graphic.h"
+
 class Drawer;
 class PathmapTile;
 class Dot;
@@ -16,7 +18,7 @@ public:
 	World(void);
 	~World(void);
 
-	void Init();
+	void Init(Drawer* myDrawer);
 
 	void Draw(Drawer* aDrawer);
 	bool TileIsValid(int anX, int anY);
@@ -37,13 +39,15 @@ private:
 
 
 	bool InitPathmap();
-	bool InitDots();
-	bool InitBigDots();
+	bool InitDots(Drawer* myDrawer);
+	bool InitBigDots(Drawer* myDrawer);
 
 	std::list<PathmapTile*> myPathmapTiles;
 	std::list<Dot*> myDots;
 	std::list<BigDot*> myBigDots;
 	std::list<Cherry*> myCherry;
+
+	Graphic* environment;
 
 };
 
