@@ -23,7 +23,7 @@ private:
 	bool Init();
 	bool UpdateInput();
 	void MoveAvatar();
-	bool CheckEndGameCondition();
+	bool CheckWinCondition();
 
 	Drawer* myDrawer;
 

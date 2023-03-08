@@ -76,7 +76,7 @@ bool Pacman::Update(float aTime)
 	if (!UpdateInput())
 		return false;
 
-	if (CheckEndGameCondition())
+	if (CheckWinCondition())
 	{
 		myDrawer->DrawText("You win!", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 70);
 		return true;
@@ -116,6 +116,7 @@ bool Pacman::Update(float aTime)
 
 			myAvatar->SetPosition(Vector2f(13*22,22*22));
 			myGhost->SetPosition(Vector2f(13*22,13*22));
+			// reset my next position for all moveable game entities
 		}
 		else if (myGhost->myIsClaimableFlag && !myGhost->myIsDeadFlag)
 		{
@@ -164,9 +165,9 @@ void Pacman::MoveAvatar()
 	}
 }
 
-bool Pacman::CheckEndGameCondition()
+bool Pacman::CheckWinCondition()
 {
-	return false;
+	return false; // check if current score is equal to max score
 }
 
 bool Pacman::Draw()
