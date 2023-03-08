@@ -31,4 +31,14 @@ void Avatar::Update(float aTime)
 		direction.Normalize();
 		myPosition += direction * distanceToMove;
 	}
+	UpdateFacingDirection(direction);
+}
+
+void Avatar::UpdateFacingDirection(Vector2f dir) {
+	dir.Normalize();
+	if (dir.myX + dir.myY == 0) return;	// return if moving into wall
+	currentDirectionGraphics = graphicOrientation[{dir.myX, dir.myY}]; // list of graphics in facing direction
+	// check if mouth open or closed
+	gameEntityGraphic->SetImage(currentDirectionGraphics[0]);
+
 }
