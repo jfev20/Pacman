@@ -17,6 +17,7 @@ public:
 	~Graphic();
 
 	void SetImage(std::string anImage);
+	std::string GetImage();
 	void Draw(Drawer* drawer, int x, int y);
 
 private:

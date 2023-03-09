@@ -37,6 +37,10 @@ void Graphic::SetImage(std::string anImage) {
 	}
 }
 
+std::string Graphic::GetImage() {
+	return currImage;
+}
+
 void Graphic::Draw(Drawer* drawer, int x, int y) {
 	drawer->Draw(paths[currImage], boundingBox, x, y);
 }
