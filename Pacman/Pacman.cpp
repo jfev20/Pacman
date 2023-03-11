@@ -58,6 +58,9 @@ Pacman::Pacman(Drawer* aDrawer)
 	myGhost = new Ghost(Vector2f(13*22,13*22), ghostGraphic);
 
 	myWorld = new World();
+
+	UpdateScore(0);
+	UpdateLives(0);
 }
 
 Pacman::~Pacman(void)
@@ -92,13 +95,13 @@ bool Pacman::Update(float aTime)
 	myGhost->Update(aTime, myWorld);
 
 	if (myWorld->HasIntersectedDot(myAvatar->GetPosition()))
-		myScore += 10;
+		UpdateScore(10);
 
 	myGhostGhostCounter -= aTime;
 
 	if (myWorld->HasIntersectedBigDot(myAvatar->GetPosition()))
 	{
-		myScore += 20;
+		UpdateScore(20);
 		myGhostGhostCounter = 20.f;
 		myGhost->myIsClaimableFlag = true;
 	}
@@ -112,7 +115,7 @@ bool Pacman::Update(float aTime)
 	{
 		if (myGhostGhostCounter <= 0.f)
 		{
-			myLives--;
+			UpdateLives(-1);
 
 			myAvatar->SetPosition(Vector2f(13*22,22*22));
 			myGhost->SetPosition(Vector2f(13*22,13*22));
@@ -120,14 +123,14 @@ bool Pacman::Update(float aTime)
 		}
 		else if (myGhost->myIsClaimableFlag && !myGhost->myIsDeadFlag)
 		{
-			myScore += 50;
+			UpdateScore(50);
 			myGhost->myIsDeadFlag = true;
 			myGhost->Die(myWorld);
 		}
 	}
 	
 	if (aTime > 0)
-		myFps = (int) (1 / aTime);
+		UpdateFPS((int) (1 / aTime));
 
 	return true;
 }
@@ -170,32 +173,45 @@ bool Pacman::CheckWinCondition()
 	return false; // check if current score is equal to max score
 }
 
+void Pacman::UpdateScore(int aScore) {
+
+	myScore += aScore;
+
+	std::stringstream scoreStream;
+	scoreStream << "Score " << myScore;
+	scoreString = scoreStream.str();
+	
+}
+
+void Pacman::UpdateLives(int aLife) {
+
+	myLives += aLife;
+
+	std::stringstream liveStream;
+	liveStream << "Lives " << myLives;
+	livesString = liveStream.str();
+
+}
+
+void Pacman::UpdateFPS(int frames) {
+
+	myFps = frames;
+
+	std::stringstream fpsStream;
+	fpsStream << "FPS " << myFps;
+	fpsString = fpsStream.str();
+
+}
+
 bool Pacman::Draw()
 {
 	myWorld->Draw(myDrawer);
 	myAvatar->Draw(myDrawer);
 	myGhost->Draw(myDrawer);
 
-	std::string scoreString;
-	std::stringstream scoreStream;
-	scoreStream << myScore;
-	scoreString = scoreStream.str();
-	myDrawer->DrawText("Score", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 50);
-	myDrawer->DrawText(scoreString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 90, 50);
-
-	std::string livesString;
-	std::stringstream liveStream;
-	liveStream << myLives;
-	livesString = liveStream.str();
-	myDrawer->DrawText("Lives", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 80);
-	myDrawer->DrawText(livesString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 90, 80);
-
-	myDrawer->DrawText("FPS", "freefont-ttf\\sfd\\FreeMono.ttf", 880, 50);
-	std::string fpsString;
-	std::stringstream fpsStream;
-	fpsStream << myFps;
-	fpsString = fpsStream.str();
-	myDrawer->DrawText(fpsString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 930, 50);
+	myDrawer->DrawText(scoreString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 20, 50);
+	myDrawer->DrawText(livesString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 20, 80);
+	myDrawer->DrawText(fpsString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 880, 50);
 
 	return true;
 }

@@ -2,6 +2,7 @@
 #define PACMAN_H
 
 #include "Vector2f.h"
+#include <string>
 
 struct SDL_Surface;
 class Drawer;
@@ -25,6 +26,10 @@ private:
 	void MoveAvatar();
 	bool CheckWinCondition();
 
+	void UpdateScore(int aScore);
+	void UpdateLives(int aLife);
+	void UpdateFPS(int frames);
+
 	Drawer* myDrawer;
 
 	float myTimeToNextUpdate;
@@ -33,6 +38,10 @@ private:
 	int myLives;
 	int myScore;
 	int myFps;
+
+	std::string scoreString;
+	std::string livesString;
+	std::string fpsString;
 
 	Vector2f myNextMovement;
 
