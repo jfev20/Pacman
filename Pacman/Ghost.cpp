@@ -3,9 +3,11 @@
 #include "PathmapTile.h"
 #include "Drawer.h"
 
-Ghost::Ghost(const Vector2f& aPosition)
-: MovableGameEntity(aPosition, "ghost_32.png")
+Ghost::Ghost(const Vector2f& aPosition, Graphic* aGraphic)
+: MovableGameEntity(aPosition, aGraphic)
 {
+	gameEntityGraphic->SetImage("ghost_32.png");
+
 	myIsClaimableFlag = false;
 	myIsDeadFlag = false;
 
@@ -89,9 +91,9 @@ void Ghost::Update(float aTime, World* aWorld)
 
 void Ghost::SetImage(const char* anImage)
 {
-	myImage = anImage;
+	ghostGraphic->SetImage(anImage);
 }
-
+/*
 void Ghost::Draw(Drawer* aDrawer)
 {
 	if (myIsDeadFlag)
@@ -101,3 +103,4 @@ void Ghost::Draw(Drawer* aDrawer)
 	else
 		aDrawer->Draw(myImage, (int)myPosition.myX + 220, (int)myPosition.myY + 60);
 }
+*/

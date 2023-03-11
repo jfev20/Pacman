@@ -9,6 +9,7 @@
 #include "Avatar.h"
 #include "World.h"
 #include "Ghost.h"
+#include "Graphic.h"
 
 Pacman* Pacman::Create(Drawer* aDrawer)
 {
@@ -32,9 +33,34 @@ Pacman::Pacman(Drawer* aDrawer)
 , myLives(3)
 , myGhostGhostCounter(0.f)
 {
-	myAvatar = new Avatar(Vector2f(13*22,22*22));
-	myGhost = new Ghost(Vector2f(13*22,13*22));
+	Graphic* avatarGraphic = nullptr;
+	Graphic* ghostGraphic = nullptr;
+	std::list<std::string> avatarPaths{ 
+		"closed_right_32.png",
+		"open_right_32.png",
+		"closed_down_32.png",
+		"open_down_32.png",
+		"closed_left_32.png",
+		"open_left_32.png",
+		"closed_up_32.png",
+		"open_up_32.png"
+	};
+	std::list<std::string> ghostPaths{
+		"ghost_32.png",
+		"Ghost_Dead_32.png",
+		"Ghost_Vulnerable_32.png"
+	};
+
+	avatarGraphic = Graphic::Create(myDrawer, avatarPaths, 32, 32);
+	myAvatar = new Avatar(Vector2f(13*22,22*22), avatarGraphic);
+
+	ghostGraphic = Graphic::Create(myDrawer, ghostPaths, 32, 32);
+	myGhost = new Ghost(Vector2f(13*22,13*22), ghostGraphic);
+
 	myWorld = new World();
+
+	UpdateScore(0);
+	UpdateLives(0);
 }
 
 Pacman::~Pacman(void)
@@ -43,7 +69,7 @@ Pacman::~Pacman(void)
 
 bool Pacman::Init()
 {
-	myWorld->Init();
+	myWorld->Init(myDrawer);
 
 	return true;
 }
@@ -53,7 +79,7 @@ bool Pacman::Update(float aTime)
 	if (!UpdateInput())
 		return false;
 
-	if (CheckEndGameCondition())
+	if (CheckWinCondition())
 	{
 		myDrawer->DrawText("You win!", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 70);
 		return true;
@@ -69,13 +95,13 @@ bool Pacman::Update(float aTime)
 	myGhost->Update(aTime, myWorld);
 
 	if (myWorld->HasIntersectedDot(myAvatar->GetPosition()))
-		myScore += 10;
+		UpdateScore(10);
 
 	myGhostGhostCounter -= aTime;
 
 	if (myWorld->HasIntersectedBigDot(myAvatar->GetPosition()))
 	{
-		myScore += 20;
+		UpdateScore(20);
 		myGhostGhostCounter = 20.f;
 		myGhost->myIsClaimableFlag = true;
 	}
@@ -89,21 +115,22 @@ bool Pacman::Update(float aTime)
 	{
 		if (myGhostGhostCounter <= 0.f)
 		{
-			myLives--;
+			UpdateLives(-1);
 
 			myAvatar->SetPosition(Vector2f(13*22,22*22));
 			myGhost->SetPosition(Vector2f(13*22,13*22));
+			// reset my next position for all moveable game entities
 		}
 		else if (myGhost->myIsClaimableFlag && !myGhost->myIsDeadFlag)
 		{
-			myScore += 50;
+			UpdateScore(50);
 			myGhost->myIsDeadFlag = true;
 			myGhost->Die(myWorld);
 		}
 	}
 	
 	if (aTime > 0)
-		myFps = (int) (1 / aTime);
+		UpdateFPS((int) (1 / aTime));
 
 	return true;
 }
@@ -141,9 +168,39 @@ void Pacman::MoveAvatar()
 	}
 }
 
-bool Pacman::CheckEndGameCondition()
+bool Pacman::CheckWinCondition()
 {
-	return false;
+	return false; // check if current score is equal to max score
+}
+
+void Pacman::UpdateScore(int aScore) {
+
+	myScore += aScore;
+
+	std::stringstream scoreStream;
+	scoreStream << "Score " << myScore;
+	scoreString = scoreStream.str();
+	
+}
+
+void Pacman::UpdateLives(int aLife) {
+
+	myLives += aLife;
+
+	std::stringstream liveStream;
+	liveStream << "Lives " << myLives;
+	livesString = liveStream.str();
+
+}
+
+void Pacman::UpdateFPS(int frames) {
+
+	myFps = frames;
+
+	std::stringstream fpsStream;
+	fpsStream << "FPS " << myFps;
+	fpsString = fpsStream.str();
+
 }
 
 bool Pacman::Draw()
@@ -152,26 +209,9 @@ bool Pacman::Draw()
 	myAvatar->Draw(myDrawer);
 	myGhost->Draw(myDrawer);
 
-	std::string scoreString;
-	std::stringstream scoreStream;
-	scoreStream << myScore;
-	scoreString = scoreStream.str();
-	myDrawer->DrawText("Score", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 50);
-	myDrawer->DrawText(scoreString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 90, 50);
-
-	std::string livesString;
-	std::stringstream liveStream;
-	liveStream << myLives;
-	livesString = liveStream.str();
-	myDrawer->DrawText("Lives", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 80);
-	myDrawer->DrawText(livesString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 90, 80);
-
-	myDrawer->DrawText("FPS", "freefont-ttf\\sfd\\FreeMono.ttf", 880, 50);
-	std::string fpsString;
-	std::stringstream fpsStream;
-	fpsStream << myFps;
-	fpsString = fpsStream.str();
-	myDrawer->DrawText(fpsString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 930, 50);
+	myDrawer->DrawText(scoreString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 20, 50);
+	myDrawer->DrawText(livesString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 20, 80);
+	myDrawer->DrawText(fpsString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 880, 50);
 
 	return true;
 }

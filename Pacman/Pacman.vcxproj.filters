@@ -64,6 +64,12 @@
       <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Graphic.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Clock.cpp">
+      <Filter>Game\Game entities\Movable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pacman.h">
@@ -104,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="Vector2f.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Clock.h">
+      <Filter>Game\Game entities\Movable</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

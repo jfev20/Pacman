@@ -1,6 +1,7 @@
 #include "Drawer.h"
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_rect.h"
 #include "SDL_ttf.h"
 
 Drawer* Drawer::Create(SDL_Window* aWindow, SDL_Renderer* aRenderer)
@@ -34,28 +35,41 @@ bool Drawer::Init()
 	return true;
 }
 
-void Drawer::Draw(const char* anImage, int aCellX, int aCellY)
+SDL_Texture* Drawer::GetTexture(std::string path) {
+	SDL_Texture* texture = nullptr;
+
+	if (texture_paths.count(path) > 0) {
+		texture = texture_paths.at(path);
+	}
+	else {
+		texture = IMG_LoadTexture(myRenderer, path.c_str());
+		texture_paths[path] = texture;
+	}
+
+	return texture;
+}
+
+SDL_Texture* Drawer::GetTexture(SDL_Surface* aSurface) {
+	return SDL_CreateTextureFromSurface(myRenderer, aSurface);
+}
+
+void Drawer::Draw(SDL_Texture* texture, SDL_Rect boundingBox, int aCellX, int aCellY)
 {
-	SDL_Surface* surface = IMG_Load( anImage ) ;
+	/*SDL_Surface* surface = IMG_Load( anImage ) ;
 
 	if (!surface)
 		return;
 
 	SDL_Texture* optimizedSurface = SDL_CreateTextureFromSurface(myRenderer, surface);
-
-    SDL_Rect sizeRect;
-    sizeRect.x = 0 ;
-    sizeRect.y = 0 ;
-    sizeRect.w = surface->w ;
-    sizeRect.h = surface->h ;
+	*/
 
     SDL_Rect posRect ;
     posRect.x = aCellX;
     posRect.y = aCellY;
-	posRect.w = sizeRect.w;
-	posRect.h = sizeRect.h;
+	posRect.w = boundingBox.w;
+	posRect.h = boundingBox.h;
 
-	SDL_RenderCopy(myRenderer, optimizedSurface, &sizeRect, &posRect);	
+	SDL_RenderCopy(myRenderer, texture, &boundingBox, &posRect);
 }
 
 void Drawer::DrawText(const char* aText, const char* aFontFile, int aX, int aY)
