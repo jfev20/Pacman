@@ -35,7 +35,7 @@ Pacman::Pacman(Drawer* aDrawer)
 {
 	Graphic* avatarGraphic = nullptr;
 	Graphic* ghostGraphic = nullptr;
-	std::list<std::string> avatarPaths{ 
+	std::list<std::string> avatarGraphicPaths{ 
 		"closed_right_32.png",
 		"open_right_32.png",
 		"closed_down_32.png",
@@ -45,22 +45,23 @@ Pacman::Pacman(Drawer* aDrawer)
 		"closed_up_32.png",
 		"open_up_32.png"
 	};
-	std::list<std::string> ghostPaths{
+	std::list<std::string> ghostGraphicPaths{
 		"ghost_32.png",
 		"Ghost_Dead_32.png",
 		"Ghost_Vulnerable_32.png"
 	};
 
-	avatarGraphic = Graphic::Create(myDrawer, avatarPaths, 32, 32);
+	avatarGraphic = Graphic::Create(myDrawer, avatarGraphicPaths, 32, 32);
 	myAvatar = new Avatar(Vector2f(13*22,22*22), avatarGraphic);
 
-	ghostGraphic = Graphic::Create(myDrawer, ghostPaths, 32, 32);
+	ghostGraphic = Graphic::Create(myDrawer, ghostGraphicPaths, 32, 32);
 	myGhost = new Ghost(Vector2f(13*22,13*22), ghostGraphic);
 
 	myWorld = new World();
 
 	UpdateScore(0);
 	UpdateLives(0);
+	UpdateFPS(0);
 }
 
 Pacman::~Pacman(void)
@@ -92,14 +93,16 @@ bool Pacman::Update(float aTime)
 
 	MoveAvatar();
 	myAvatar->Update(aTime);
-	myGhost->Update(aTime, myWorld);
+	Vector2f avatarPos = myAvatar->GetPosition();
+	PathmapTile* myGhostTarget = myWorld->GetTile(myAvatar->GetCurrentTileX(), myAvatar->GetCurrentTileY()); // this target will always chase player
+	myGhost->Update(aTime, myWorld, myGhostTarget);
 
-	if (myWorld->HasIntersectedDot(myAvatar->GetPosition()))
+	if (myWorld->HasIntersectedDot(avatarPos))
 		UpdateScore(10);
 
 	myGhostGhostCounter -= aTime;
 
-	if (myWorld->HasIntersectedBigDot(myAvatar->GetPosition()))
+	if (myWorld->HasIntersectedBigDot(avatarPos))
 	{
 		UpdateScore(20);
 		myGhostGhostCounter = 20.f;
@@ -111,7 +114,7 @@ bool Pacman::Update(float aTime)
 		myGhost->myIsClaimableFlag = false;
 	}
 
-	if ((myGhost->GetPosition() - myAvatar->GetPosition()).Length() < 10.f)
+	if ((myGhost->GetPosition() - avatarPos).Length() < 10.f)
 	{
 		if (myGhostGhostCounter <= 0.f)
 		{

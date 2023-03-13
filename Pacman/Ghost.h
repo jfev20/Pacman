@@ -13,7 +13,7 @@ public:
 	Ghost(const Vector2f& aPosition, Graphic* aGraphic);
 	~Ghost(void);
 
-	void Update(float aTime, World* aWorld);
+	void Update(float aTime, World* aWorld, PathmapTile* targetTile);
 
 	bool myIsClaimableFlag;
 	bool myIsDeadFlag;
@@ -30,6 +30,7 @@ protected:
 	int myDesiredMovementY;
 
 	std::list<PathmapTile*> myPath;
+	std::list<PathmapTile*> neighbours;
 
 	Graphic* ghostGraphic;
 

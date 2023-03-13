@@ -13,14 +13,7 @@ MovableGameEntity::~MovableGameEntity(void)
 
 bool MovableGameEntity::IsAtDestination()
 {
-	if (myCurrentTileX == myNextTileX && myCurrentTileY == myNextTileY)
-	{
-
-
-		return true;
-	}
-
-	return false;
+	return (myCurrentTileX == myNextTileX && myCurrentTileY == myNextTileY) ? true : false;
 }
 
 void MovableGameEntity::SetNextTile(int anX, int anY)
