@@ -70,6 +70,9 @@
     <ClCompile Include="Clock.cpp">
       <Filter>Game\Game entities\Movable</Filter>
     </ClCompile>
+    <ClCompile Include="RedGhost.cpp">
+      <Filter>Game\Game entities\Movable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pacman.h">
@@ -115,6 +118,9 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Clock.h">
+      <Filter>Game\Game entities\Movable</Filter>
+    </ClInclude>
+    <ClInclude Include="RedGhost.h">
       <Filter>Game\Game entities\Movable</Filter>
     </ClInclude>
   </ItemGroup>

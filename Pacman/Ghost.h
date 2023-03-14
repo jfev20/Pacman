@@ -13,21 +13,30 @@ public:
 	Ghost(const Vector2f& aPosition, Graphic* aGraphic);
 	~Ghost(void);
 
+	virtual std::string getNormalGraphic() = 0;
+	virtual Vector2f getWanderTarget() = 0;
+
 	void Update(float aTime, World* aWorld, PathmapTile* targetTile);
 
 	bool myIsClaimableFlag;
 	bool myIsDeadFlag;
 
-	void SetImage(const char* anImage);
+	void SetNormalImage();
 
 	void Die(World* aWorld);
 
-	/*void Draw(Drawer* aDrawer);*/
-
 protected:
 
+	bool Ghost::inHome(int x, int y);
+
+	Vector2f homeVector;
 	int myDesiredMovementX;
 	int myDesiredMovementY;
+	bool hasVisitedWanderTarget = false;
+
+	Vector2f direction = { 0,0 };
+
+	PathmapTile* previousTile;
 
 	std::list<PathmapTile*> myPath;
 	std::list<PathmapTile*> neighbours;

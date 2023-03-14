@@ -3,11 +3,13 @@
 #include "PathmapTile.h"
 #include "Drawer.h"
 
+#include <algorithm>
+#include <iterator>
+#include <iostream>
+
 Ghost::Ghost(const Vector2f& aPosition, Graphic* aGraphic)
 : MovableGameEntity(aPosition, aGraphic)
 {
-	gameEntityGraphic->SetImage("ghost_32.png");
-
 	myIsClaimableFlag = false;
 	myIsDeadFlag = false;
 
@@ -31,23 +33,40 @@ void Ghost::Update(float aTime, World* aWorld, PathmapTile* targetTile)
 	int nextTileX = GetCurrentTileX() + myDesiredMovementX;
 	int nextTileY = GetCurrentTileY() + myDesiredMovementY;
 
-	
-
 	if (myIsDeadFlag)
 		speed = 120.f;
 
 	if (IsAtDestination())
 	{
+		Vector2f homeVector = getWanderTarget();
+		if (GetCurrentTileX() == homeVector.myX && GetCurrentTileY() == homeVector.myY) {
+			hasVisitedWanderTarget = true;
+		}
+
+		if (!hasVisitedWanderTarget) {
+			targetTile = aWorld->GetTile(homeVector.myX, homeVector.myY);
+		}
+
 		neighbours = aWorld->getNeighbours(GetCurrentTileX(), GetCurrentTileY(), myPath);
 
-		if (neighbours.size() > 1)
+		std::list<PathmapTile*> filteredNeighbours;
+		direction.Normalize();
+		std::copy_if(neighbours.begin(), neighbours.end(), std::back_inserter(filteredNeighbours),
+			[this](PathmapTile* aTile) { 
+				return (
+					aTile->myX != GetCurrentTileX() - direction.myX ||
+					aTile->myY != GetCurrentTileY() - direction.myY
+					); 
+			});
+
+		if (filteredNeighbours.size() > 1)
 		{
-			neighbours.sort([&, targetTile](PathmapTile* tileA, PathmapTile* tileB) {
+			filteredNeighbours.sort([&, targetTile](PathmapTile* tileA, PathmapTile* tileB) {
 				return aWorld->getDistance(tileA, targetTile) < aWorld->getDistance(tileB, targetTile);
 			});
 		}
-		nextTileX = neighbours.front()->myX;
-		nextTileY = neighbours.front()->myY;
+		nextTileX = filteredNeighbours.front()->myX;
+		nextTileY = filteredNeighbours.front()->myY;
 
 		if (!myPath.empty())
 		{
@@ -67,7 +86,8 @@ void Ghost::Update(float aTime, World* aWorld, PathmapTile* targetTile)
 
 	int tileSize = 22;
 	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
-	Vector2f direction = destination - myPosition;
+	direction = destination - myPosition;
+	
 
 	float distanceToMove = aTime * speed;
 
@@ -84,7 +104,11 @@ void Ghost::Update(float aTime, World* aWorld, PathmapTile* targetTile)
 	}
 }
 
-void Ghost::SetImage(const char* anImage)
+bool Ghost::inHome(int x, int y) {
+	return (x > 9 && x < 16 && y > 10 && y < 15);
+}
+
+void Ghost::SetNormalImage()
 {
-	ghostGraphic->SetImage(anImage);
+	gameEntityGraphic->SetImage(getNormalGraphic());
 }

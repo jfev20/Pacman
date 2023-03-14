@@ -1,4 +1,5 @@
 #include "Avatar.h"
+#include <iostream>
 
 Avatar::Avatar(const Vector2f& aPosition, Graphic* aGraphic)
 	: MovableGameEntity(aPosition, aGraphic)
@@ -24,7 +25,7 @@ int Avatar::ReturnGraphicIndex(std::string anImage) {
 void Avatar::Update(float aTime)
 {
 	int tileSize = 22;
-
+	
 	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
 	Vector2f direction = destination - myPosition;
 

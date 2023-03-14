@@ -9,6 +9,7 @@
 #include "Avatar.h"
 #include "World.h"
 #include "Ghost.h"
+#include "RedGhost.h"
 #include "Graphic.h"
 
 Pacman* Pacman::Create(Drawer* aDrawer)
@@ -46,7 +47,7 @@ Pacman::Pacman(Drawer* aDrawer)
 		"open_up_32.png"
 	};
 	std::list<std::string> ghostGraphicPaths{
-		"ghost_32.png",
+		"ghost_32_red.png",
 		"Ghost_Dead_32.png",
 		"Ghost_Vulnerable_32.png"
 	};
@@ -55,7 +56,7 @@ Pacman::Pacman(Drawer* aDrawer)
 	myAvatar = new Avatar(Vector2f(13*22,22*22), avatarGraphic);
 
 	ghostGraphic = Graphic::Create(myDrawer, ghostGraphicPaths, 32, 32);
-	myGhost = new Ghost(Vector2f(13*22,13*22), ghostGraphic);
+	myGhost = new RedGhost(Vector2f(13 * 22, 13 * 22), ghostGraphic);
 
 	myWorld = new World();
 
