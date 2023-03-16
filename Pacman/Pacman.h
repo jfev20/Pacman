@@ -5,6 +5,7 @@
 #include <list>
 #include <string>
 #include "PathmapTile.h"
+#include <functional>
 
 struct SDL_Surface;
 class Drawer;
@@ -31,6 +32,8 @@ private:
 	void UpdateScore(int aScore);
 	void UpdateLives(int aLife);
 	void UpdateFPS(int frames);
+
+	void ApplyToAllGhosts(std::function<void(Ghost *aGhost)>func);
 
 	Drawer* myDrawer;
 

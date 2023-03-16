@@ -17,6 +17,7 @@ Ghost::Ghost(const Vector2f& aPosition, Graphic* aGraphic, Avatar* myAvatar)
 	myDesiredMovementY = -1;
 
 	pacman = myAvatar;
+	setSpawnPosition(aPosition);
 }
 
 Ghost::~Ghost(void)
@@ -26,6 +27,7 @@ Ghost::~Ghost(void)
 void Ghost::Die(World* aWorld)
 {
 	myPath.clear();
+	hasVisitedWanderTarget = true;
 	aWorld->GetPath(myCurrentTileX, myCurrentTileY, 13, 13, myPath);
 }
 
@@ -48,7 +50,11 @@ void Ghost::Update(float aTime, World* aWorld)
 		}
 
 		if (!hasVisitedWanderTarget) {
-			targetTile = inSpawn(GetCurrentTileX(), GetCurrentTileY()) ? aWorld->getSpawnExitVector() : this->getWanderTarget();
+			targetTile = this->getWanderTarget();
+		}
+
+		if (inSpawn(GetCurrentTileX(), GetCurrentTileY())) {
+			targetTile = aWorld->getSpawnExitVector();
 		}
 
 		neighbours = aWorld->getNeighbours(GetCurrentTileX(), GetCurrentTileY(), myPath);

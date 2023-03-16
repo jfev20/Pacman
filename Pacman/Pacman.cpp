@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 #include "Avatar.h"
 #include "World.h"
@@ -135,51 +136,64 @@ bool Pacman::Update(float aTime)
 
 	Vector2f avatarPos = myAvatar->GetPosition();
 
-	for (allGhostItr = allGhosts.begin(); allGhostItr != allGhosts.end(); allGhostItr++) {
-		(*allGhostItr)->Update(aTime, myWorld); // move ghost
-	}
+	ApplyToAllGhosts([this, aTime](Ghost *aGhost) {
+		aGhost->Update(aTime, myWorld); // move ghost
+	});
 
 	if (myWorld->HasIntersectedDot(avatarPos))
 		UpdateScore(10);
 
-	myGhostGhostCounter -= aTime;
+	myGhostGhostCounter -= aTime; // frightened timer
 
 	if (myWorld->HasIntersectedBigDot(avatarPos))
 	{
 		UpdateScore(20);
 		myGhostGhostCounter = 20.f;
-		for (allGhostItr = allGhosts.begin(); allGhostItr != allGhosts.end(); allGhostItr++)
-			(*allGhostItr)->myIsClaimableFlag = true;
+
+		ApplyToAllGhosts([](Ghost *aGhost) {
+			aGhost->myIsClaimableFlag = true;
+		});
 	}
-	for (allGhostItr = allGhosts.begin(); allGhostItr != allGhosts.end(); allGhostItr++) {
+	ApplyToAllGhosts([this, avatarPos](Ghost *aGhost) {
 		if (myGhostGhostCounter <= 0)
 		{
-			(*allGhostItr)->myIsClaimableFlag = false;
+			aGhost->myIsClaimableFlag = false;
 		}
 
-		if (((*allGhostItr)->GetPosition() - avatarPos).Length() < 10.f)
+		if ((aGhost->GetPosition() - avatarPos).Length() < 10.f)
 		{
 			if (myGhostGhostCounter <= 0.f)
 			{
 				UpdateLives(-1);
 
-				myAvatar->SetPosition(Vector2f(13*22,22*22));
-				(*allGhostItr)->SetPosition(Vector2f(13*22,13*22));
-				// reset my next position for all moveable game entities
+				myAvatar->SetPosition(Vector2f(13,22)*22);
+				// reset all ghost positions to spawn
+				ApplyToAllGhosts([](Ghost *aGhost) {
+					aGhost->SetPosition(aGhost->getSpawnPosition()*22);
+				});
+				
 			}
-			else if ((*allGhostItr)->myIsClaimableFlag && !(*allGhostItr)->myIsDeadFlag)
+			else if (aGhost->myIsClaimableFlag && !aGhost->myIsDeadFlag)
 			{
 				UpdateScore(50);
-				(*allGhostItr)->myIsDeadFlag = true;
-				(*allGhostItr)->Die(myWorld);
+				aGhost->myIsDeadFlag = true;
+				aGhost->Die(myWorld);
 			}
 		}
-	}
+	});
 	if (aTime > 0)
 		UpdateFPS((int) (1 / aTime));
 
 	return true;
 }
+
+// applies any given function to every ghost
+void Pacman::ApplyToAllGhosts(std::function<void (Ghost *aGhost)>func) {
+	std::for_each(allGhosts.begin(), allGhosts.end(), [func](Ghost *aGhost) {
+		func(aGhost);
+	});
+}
+
 
 bool Pacman::UpdateInput()
 {

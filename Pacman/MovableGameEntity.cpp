@@ -22,6 +22,12 @@ void MovableGameEntity::SetNextTile(int anX, int anY)
 	myNextTileY = anY;
 }
 
+void MovableGameEntity::SetPosition(const Vector2f& aPosition) {
+	GameEntity::SetPosition(aPosition);
+	myCurrentTileX = myNextTileX = myPosition.myX / 22;
+	myCurrentTileY = myNextTileY = myPosition.myY / 22;
+}
+
 Vector2f MovableGameEntity::getTileVector() {
 	return{
 		static_cast<float>(myCurrentTileX),
@@ -33,11 +39,9 @@ void MovableGameEntity::teleportEntity(Vector2f portalLeft, Vector2f portalRight
 	Vector2f offset = { 22,0 };
 	if (getTileVector() == portalLeft) {
 		SetPosition(portalRight *22 - offset);
-		myCurrentTileX = myNextTileX = myPosition.myX / 22;
 	}
 		
 	if (getTileVector() == portalRight) {
 		SetPosition(portalLeft * 22 + offset);
-		myCurrentTileX = myNextTileX = myPosition.myX / 22;
 	}
 }

@@ -18,6 +18,7 @@ public:
 	virtual std::string getNormalGraphic() = 0;
 	virtual Vector2f getWanderTarget() = 0;
 	virtual Vector2f getChaseTarget(Avatar* myAvatar) = 0;
+	virtual Vector2f getSpawnPosition() { return SpawnPosition; }
 	virtual bool shouldLeaveSpawn() = 0;
 
 	void Update(float aTime, World* aWorld);
@@ -38,6 +39,7 @@ protected:
 	int myDesiredMovementX;
 	int myDesiredMovementY;
 	bool hasVisitedWanderTarget = false;
+	void setSpawnPosition(Vector2f aPosition) { SpawnPosition = aPosition; }
 
 	Vector2f direction = { 0,0 };
 
@@ -52,6 +54,7 @@ protected:
 	Avatar* pacman;
 
 	float speed;
+	Vector2f SpawnPosition;
 
 };
 

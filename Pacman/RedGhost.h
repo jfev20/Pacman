@@ -18,6 +18,8 @@ public:
 	Vector2f getChaseTarget(Avatar* myAvatar) { return myAvatar->getTileVector(); }
 	bool shouldLeaveSpawn() {return true;}
 
+	Vector2f getSpawnPosition() { return {22, 0}; }
+
 protected:
 
 
