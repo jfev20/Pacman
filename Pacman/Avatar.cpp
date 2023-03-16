@@ -1,11 +1,12 @@
 #include "Avatar.h"
 #include <iostream>
 
-Avatar::Avatar(const Vector2f& aPosition, Graphic* aGraphic)
+Avatar::Avatar(const Vector2f& aPosition, Graphic* aGraphic, int* myScore)
 	: MovableGameEntity(aPosition, aGraphic)
 {
 	gameEntityGraphic->SetImage("open_right_32.png");
 	this->timer.SetAnimationLength(animationTime);
+	score = myScore;
 
 }
 
@@ -27,9 +28,10 @@ void Avatar::Update(float aTime)
 	int tileSize = 22;
 	
 	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
-	Vector2f direction = destination - myPosition;
+	direction = destination - myPosition;
 
-	float distanceToMove = aTime * 30.f;
+	//std::cout << "Avatar: [ " << myCurrentTileX << ", " << myCurrentTileY << " ] \n";
+	float distanceToMove = aTime * speed;
 
 	if (distanceToMove > direction.Length())
 	{
@@ -57,9 +59,13 @@ void Avatar::UpdateGraphicAnimation(float aTime) {
 	timer.IncrementTime(aTime);
 	int currIndex = ReturnGraphicIndex(gameEntityGraphic->GetImage());  // game crash on death due to currentDirectionGraphics having a size of 0
 	if (timer.Compare()) {
-		selectedAnimation = ((currIndex + 1)% currentDirectionGraphics.size());
+		selectedAnimation = ((currIndex + 1) % currentDirectionGraphics.size());
 		gameEntityGraphic->SetImage(currentDirectionGraphics[selectedAnimation]);
 		timer.ResetTime();
 	}
 
+}
+
+Vector2f Avatar::getDirection() {
+	return this->direction;
 }

@@ -9,15 +9,21 @@
 class Avatar : public MovableGameEntity
 {
 public:
-	Avatar(const Vector2f& aPosition, Graphic* aGraphic);
+	Avatar(const Vector2f& aPosition, Graphic* aGraphic, int* myScore);
 	~Avatar(void);
 
 	void Update(float aTime);
+
+	Vector2f getDirection();
+
+	int* getScore() { return score; }
+
 
 private:
 	void UpdateFacingDirection(Vector2f dir, float aTime);
 	void UpdateGraphicAnimation(float aTime);
 	int ReturnGraphicIndex(std::string anImage);
+	Vector2f direction;
 
 	std::map<std::list<float>, std::vector<std::string>> graphicOrientation{
 		{{0,-1},{ "open_up_32.png" ,"closed_up_32.png" }},		
@@ -28,6 +34,9 @@ private:
 	std::vector<std::string> currentDirectionGraphics;
 	float animationTime = .2f;
 	int selectedAnimation;
+	int* score;
+
+	const float speed = 100.f;
 	
 };
 

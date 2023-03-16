@@ -67,6 +67,11 @@ public:
 		return v;
 	}
 
+	const bool Vector2f::operator!=(const std::nullptr_t &other) const
+	{
+		return false;
+	}
+
 	float Vector2f::Length() const
 	{
 		return sqrt(myX*myX + myY*myY);

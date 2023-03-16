@@ -32,9 +32,11 @@ public:
 	void GetPath(int aFromX, int aFromY, int aToX, int aToY, std::list<PathmapTile*>& aList);
 
 	std::list<PathmapTile*> getNeighbours(int x, int y, std::list<PathmapTile*>& aList);
-	float getDistance(PathmapTile* tileFrom, PathmapTile* tileTo);
+	//float getDistance(PathmapTile* tileFrom, PathmapTile* tileTo);
+	float getDistance(PathmapTile* tileFrom, Vector2f outOfBounds);
 	
 	PathmapTile* GetTile(int aFromX, int aFromY);
+	Vector2f getSpawnExitVector();
 
 private:
 

@@ -2,7 +2,9 @@
 #define PACMAN_H
 
 #include "Vector2f.h"
+#include <list>
 #include <string>
+#include "PathmapTile.h"
 
 struct SDL_Surface;
 class Drawer;
@@ -44,9 +46,16 @@ private:
 	std::string fpsString;
 
 	Vector2f myNextMovement;
+	Vector2f target;
+	PathmapTile* myGhostTarget;
+
+	std::list<Ghost*> allGhosts;
 
 	Avatar* myAvatar;
-	Ghost* myGhost;
+	Ghost* myRedGhost;
+	Ghost* myPinkGhost;
+	Ghost* myOrangeGhost;
+	Ghost* myCyanGhost;
 	World* myWorld;
 
 };

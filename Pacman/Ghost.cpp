@@ -5,16 +5,18 @@
 
 #include <algorithm>
 #include <iterator>
-#include <iostream>
 
-Ghost::Ghost(const Vector2f& aPosition, Graphic* aGraphic)
+Ghost::Ghost(const Vector2f& aPosition, Graphic* aGraphic, Avatar* myAvatar)
 : MovableGameEntity(aPosition, aGraphic)
 {
 	myIsClaimableFlag = false;
 	myIsDeadFlag = false;
+	hasVisitedWanderTarget = false;
 
 	myDesiredMovementX = 0;
 	myDesiredMovementY = -1;
+
+	pacman = myAvatar;
 }
 
 Ghost::~Ghost(void)
@@ -27,24 +29,26 @@ void Ghost::Die(World* aWorld)
 	aWorld->GetPath(myCurrentTileX, myCurrentTileY, 13, 13, myPath);
 }
 
-void Ghost::Update(float aTime, World* aWorld, PathmapTile* targetTile)
+void Ghost::Update(float aTime, World* aWorld)
 {
-	float speed = 30.f;
+	speed = 100.f;
 	int nextTileX = GetCurrentTileX() + myDesiredMovementX;
 	int nextTileY = GetCurrentTileY() + myDesiredMovementY;
 
 	if (myIsDeadFlag)
 		speed = 120.f;
 
+	targetTile = this->getChaseTarget(pacman);
+
 	if (IsAtDestination())
 	{
-		Vector2f homeVector = getWanderTarget();
-		if (GetCurrentTileX() == homeVector.myX && GetCurrentTileY() == homeVector.myY) {
+		
+		if (GetCurrentTileX() == getWanderTarget().myX && GetCurrentTileY() == getWanderTarget().myY) {
 			hasVisitedWanderTarget = true;
 		}
 
 		if (!hasVisitedWanderTarget) {
-			targetTile = aWorld->GetTile(homeVector.myX, homeVector.myY);
+			targetTile = inSpawn(GetCurrentTileX(), GetCurrentTileY()) ? aWorld->getSpawnExitVector() : this->getWanderTarget();
 		}
 
 		neighbours = aWorld->getNeighbours(GetCurrentTileX(), GetCurrentTileY(), myPath);
@@ -53,15 +57,17 @@ void Ghost::Update(float aTime, World* aWorld, PathmapTile* targetTile)
 		direction.Normalize();
 		std::copy_if(neighbours.begin(), neighbours.end(), std::back_inserter(filteredNeighbours),
 			[this](PathmapTile* aTile) { 
-				return (
-					aTile->myX != GetCurrentTileX() - direction.myX ||
-					aTile->myY != GetCurrentTileY() - direction.myY
-					); 
+				// don't remove spawn if dead
+				bool notBackwards = (
+					aTile->myX != GetCurrentTileX() - direction.myX || 
+					aTile->myY != GetCurrentTileY() - direction.myY);
+
+				return ((notBackwards) && (!isSpawnEntrance(aTile->myX, aTile->myY)));
 			});
 
 		if (filteredNeighbours.size() > 1)
 		{
-			filteredNeighbours.sort([&, targetTile](PathmapTile* tileA, PathmapTile* tileB) {
+			filteredNeighbours.sort([&, this](PathmapTile* tileA, PathmapTile* tileB) {
 				return aWorld->getDistance(tileA, targetTile) < aWorld->getDistance(tileB, targetTile);
 			});
 		}
@@ -84,10 +90,16 @@ void Ghost::Update(float aTime, World* aWorld, PathmapTile* targetTile)
 		}
 	}
 
+	
+
 	int tileSize = 22;
 	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
 	direction = destination - myPosition;
-	
+
+	if (!shouldLeaveSpawn()) {
+		speed = 0.f;
+		direction *= 0;
+	}
 
 	float distanceToMove = aTime * speed;
 
@@ -102,10 +114,6 @@ void Ghost::Update(float aTime, World* aWorld, PathmapTile* targetTile)
 		direction.Normalize();
 		myPosition += direction * distanceToMove;
 	}
-}
-
-bool Ghost::inHome(int x, int y) {
-	return (x > 9 && x < 16 && y > 10 && y < 15);
 }
 
 void Ghost::SetNormalImage()

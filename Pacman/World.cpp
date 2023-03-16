@@ -286,10 +286,22 @@ std::list<PathmapTile*> World::getNeighbours(int x, int y, std::list<PathmapTile
 	return neighborList;
 }
 
-float World::getDistance(PathmapTile* tileFrom, PathmapTile* tileTo) {
+/*float World::getDistance(PathmapTile* tileFrom, PathmapTile* tileTo) {
 	float distX = tileFrom->myX - tileTo->myX;
 	float distY = tileFrom->myY - tileTo->myY;
 
 	return sqrt(pow(distX,2.0)+pow(distY,2.0));
 
+}*/
+
+float World::getDistance(PathmapTile* tileFrom, Vector2f outOfBounds) {
+	float distX = tileFrom->myX - outOfBounds.myX;
+	float distY = tileFrom->myY - outOfBounds.myY;
+
+	return sqrt(pow(distX, 2.0) + pow(distY, 2.0));
+
+}
+
+Vector2f World::getSpawnExitVector() {
+	return{ 13, 10 };
 }
