@@ -72,6 +72,11 @@ public:
 		return false;
 	}
 
+	const bool Vector2f::operator==(const Vector2f &other) const
+	{
+		return (myX == other.myX && myY == other.myY);
+	}
+
 	float Vector2f::Length() const
 	{
 		return sqrt(myX*myX + myY*myY);

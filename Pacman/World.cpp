@@ -21,7 +21,7 @@ void World::Init(Drawer* myDrawer)
 {
 	std::list<std::string> paths;
 	paths.push_front("playfield.png");
-	environment = Graphic::Create(myDrawer, paths, 1024, 768);
+	environment = Graphic::Create(myDrawer, paths, 1024, 768); // magic number
 	environment->SetImage("playfield.png");
 	
 	InitPathmap();
@@ -304,4 +304,12 @@ float World::getDistance(PathmapTile* tileFrom, Vector2f outOfBounds) {
 
 Vector2f World::getSpawnExitVector() {
 	return{ 13, 10 };
+}
+
+Vector2f World::getTeleportAVector() {
+	return{ 0, 13 };
+}
+
+Vector2f World::getTeleportBVector() {
+	return{ 26, 13 };
 }

@@ -3,6 +3,7 @@
 
 #include "MovableGameEntity.h"
 #include "Vector2f.h"
+#include "World.h"
 #include <map>
 #include <vector>
 
@@ -12,7 +13,7 @@ public:
 	Avatar(const Vector2f& aPosition, Graphic* aGraphic, int* myScore);
 	~Avatar(void);
 
-	void Update(float aTime);
+	void Update(float aTime, World* aWorld);
 
 	Vector2f getDirection();
 

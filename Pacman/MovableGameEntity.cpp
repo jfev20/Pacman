@@ -28,3 +28,16 @@ Vector2f MovableGameEntity::getTileVector() {
 		static_cast<float>(myCurrentTileY)
 	};
 }
+
+void MovableGameEntity::teleportEntity(Vector2f portalLeft, Vector2f portalRight) {
+	Vector2f offset = { 22,0 };
+	if (getTileVector() == portalLeft) {
+		SetPosition(portalRight *22 - offset);
+		myCurrentTileX = myNextTileX = myPosition.myX / 22;
+	}
+		
+	if (getTileVector() == portalRight) {
+		SetPosition(portalLeft * 22 + offset);
+		myCurrentTileX = myNextTileX = myPosition.myX / 22;
+	}
+}

@@ -23,9 +23,9 @@ int Avatar::ReturnGraphicIndex(std::string anImage) {
 	}
 };
 
-void Avatar::Update(float aTime)
+void Avatar::Update(float aTime, World* aWorld)
 {
-	int tileSize = 22;
+	int tileSize = 22; // magic number
 	
 	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
 	direction = destination - myPosition;
@@ -44,6 +44,8 @@ void Avatar::Update(float aTime)
 		direction.Normalize();
 		myPosition += direction * distanceToMove;
 	}
+
+	teleportEntity(aWorld->getTeleportAVector(), aWorld->getTeleportBVector());
 	UpdateFacingDirection(direction, aTime);
 }
 

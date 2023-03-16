@@ -38,6 +38,9 @@ public:
 	PathmapTile* GetTile(int aFromX, int aFromY);
 	Vector2f getSpawnExitVector();
 
+	Vector2f getTeleportAVector();
+	Vector2f getTeleportBVector();
+
 private:
 
 	

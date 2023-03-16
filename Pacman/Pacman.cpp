@@ -131,7 +131,7 @@ bool Pacman::Update(float aTime)
 	std::list<Ghost*>::iterator allGhostItr;
 
 	MoveAvatar();
-	myAvatar->Update(aTime);
+	myAvatar->Update(aTime, myWorld);
 
 	Vector2f avatarPos = myAvatar->GetPosition();
 
