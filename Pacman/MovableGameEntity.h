@@ -14,6 +14,10 @@ public:
 	void SetNextTile(int anX, int anY);
 	int GetCurrentTileX() const { return myCurrentTileX; }
 	int GetCurrentTileY() const { return myCurrentTileY; }
+	Vector2f getTileVector();
+
+	void SetPosition(const Vector2f& aPosition);
+	void teleportEntity(Vector2f portalA, Vector2f portalB);
 	
 
 	bool IsAtDestination();

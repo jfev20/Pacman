@@ -3,16 +3,23 @@
 #include "PathmapTile.h"
 #include "Drawer.h"
 
-Ghost::Ghost(const Vector2f& aPosition, Graphic* aGraphic)
+#include <algorithm>
+#include <iterator>
+
+Ghost::Ghost(const Vector2f& aPosition, Graphic* aGraphic, Avatar* myAvatar)
 : MovableGameEntity(aPosition, aGraphic)
 {
-	gameEntityGraphic->SetImage("ghost_32.png");
-
 	myIsClaimableFlag = false;
 	myIsDeadFlag = false;
+	hasVisitedWanderTarget = false;
 
 	myDesiredMovementX = 0;
 	myDesiredMovementY = -1;
+
+	timer.SetAnimationLength(frightenTime);
+
+	pacman = myAvatar;
+	setSpawnPosition(aPosition);
 }
 
 Ghost::~Ghost(void)
@@ -21,21 +28,77 @@ Ghost::~Ghost(void)
 
 void Ghost::Die(World* aWorld)
 {
+	gameEntityGraphic->SetImage("Ghost_Dead_32.png");
 	myPath.clear();
-	aWorld->GetPath(myCurrentTileX, myCurrentTileY, 13, 13, myPath);
+	myIsDeadFlag = true;
+	speed = deathSpeed;
+	targetTile = this->getSpawnPosition();
 }
 
 void Ghost::Update(float aTime, World* aWorld)
-{
-	float speed = 30.f;
+{	
 	int nextTileX = GetCurrentTileX() + myDesiredMovementX;
 	int nextTileY = GetCurrentTileY() + myDesiredMovementY;
 
-	if (myIsDeadFlag)
-		speed = 120.f;
+	if (!myIsDeadFlag) {
+		speed = standardSpeed;
+		targetTile = this->getChaseTarget(pacman);
+	}
+
+	if (isFrightened() && !myIsDeadFlag) {
+		timer.IncrementTime(aTime);
+		if (timer.Compare()) {
+			SetNormalState();
+		}
+	}
+	
 
 	if (IsAtDestination())
 	{
+		
+		if (GetCurrentTileX() == getWanderTarget().myX && GetCurrentTileY() == getWanderTarget().myY) {
+			hasVisitedWanderTarget = true;
+		}
+
+		if (!hasVisitedWanderTarget && !myIsDeadFlag) {
+			targetTile = this->getWanderTarget();
+		}
+
+		if (atSpawn(GetCurrentTileX(), GetCurrentTileY(), myIsDeadFlag)) {
+			SetNormalState();
+			targetTile = aWorld->getSpawnExitVector();
+		}
+
+		neighbours = aWorld->getNeighbours(GetCurrentTileX(), GetCurrentTileY(), myPath);
+
+		std::list<PathmapTile*> filteredNeighbours;
+		direction.Normalize();
+		std::copy_if(neighbours.begin(), neighbours.end(), std::back_inserter(filteredNeighbours),
+			[this](PathmapTile* aTile) { 
+				bool Backwards = (
+					aTile->myX == GetCurrentTileX() - direction.myX && 
+					aTile->myY == GetCurrentTileY() - direction.myY);
+
+				return !Backwards || (myIsDeadFlag && isAboveSpawnEntrance(aTile->myX, aTile->myY));
+			});
+
+		if (filteredNeighbours.size() > 1)
+		{
+			if (frightenedFlag) {
+				int randNum = rand() % (filteredNeighbours.size());
+				auto fN_front = filteredNeighbours.begin();
+				std::advance(fN_front, randNum);
+				filteredNeighbours.push_front(*fN_front);
+			}
+			else {		
+				filteredNeighbours.sort([&, this](PathmapTile* tileA, PathmapTile* tileB) {
+					return aWorld->getDistance(tileA, targetTile) < aWorld->getDistance(tileB, targetTile);
+				});
+			}
+		}
+		nextTileX = filteredNeighbours.front()->myX;
+		nextTileY = filteredNeighbours.front()->myY;
+
 		if (!myPath.empty())
 		{
 			PathmapTile* nextTile = myPath.front();
@@ -48,31 +111,20 @@ void Ghost::Update(float aTime, World* aWorld)
 		}
 		else
 		{
-			if (myDesiredMovementX == 1)
-			{
-				myDesiredMovementX = 0;
-				myDesiredMovementY = 1;
-			} else if (myDesiredMovementY == 1)
-			{
-				myDesiredMovementX = -1;
-				myDesiredMovementY = 0;			
-			} else if (myDesiredMovementX == -1)
-			{
-				myDesiredMovementX = 0;
-				myDesiredMovementY = -1;
-			} else
-			{
-				myDesiredMovementX = 1;
-				myDesiredMovementY = 0;
-			}
-
 			myIsDeadFlag = false;
 		}
 	}
 
+	
+
 	int tileSize = 22;
 	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
-	Vector2f direction = destination - myPosition;
+	direction = destination - myPosition;
+
+	if (!shouldLeaveSpawn()) {
+		speed = 0.f;
+		direction *= 0;
+	}
 
 	float distanceToMove = aTime * speed;
 
@@ -87,20 +139,33 @@ void Ghost::Update(float aTime, World* aWorld)
 		direction.Normalize();
 		myPosition += direction * distanceToMove;
 	}
+	teleportEntity(aWorld->getTeleportAVector(), aWorld->getTeleportBVector());
 }
 
-void Ghost::SetImage(const char* anImage)
-{
-	ghostGraphic->SetImage(anImage);
+void Ghost::SetFrightenedState() {
+	if (atSpawn(GetCurrentTileX(), GetCurrentTileY(), myIsDeadFlag)) {
+		return;
+	}
+	myDesiredMovementX = GetCurrentTileX() - direction.myX;
+	myDesiredMovementY = GetCurrentTileY() - direction.myY;
+	direction = direction * -1;
+	frightenedFlag = myIsClaimableFlag = true;
+	speed = frightenedSpeed;
+	gameEntityGraphic->SetImage("Ghost_Vulnerable_32.png");
+	
 }
-/*
-void Ghost::Draw(Drawer* aDrawer)
-{
-	if (myIsDeadFlag)
-		aDrawer->Draw("Ghost_Dead_32.png", (int)myPosition.myX + 220, (int)myPosition.myY + 60);
-	else if (myIsClaimableFlag)
-		aDrawer->Draw("Ghost_Vulnerable_32.png", (int)myPosition.myX + 220, (int)myPosition.myY + 60);
-	else
-		aDrawer->Draw(myImage, (int)myPosition.myX + 220, (int)myPosition.myY + 60);
+
+void Ghost::SetNormalState() {
+	gameEntityGraphic->SetImage(getNormalGraphic());
+	timer.ResetTime();
+	frightenedFlag = myIsClaimableFlag = myIsDeadFlag = false;
+	speed = standardSpeed;
 }
-*/
+
+bool Ghost::isFrightened() {
+	return frightenedFlag;
+}
+
+bool Ghost::atSpawn(int x, int y, bool dead) { 
+	return (x > 9 && x < 16 && y > (dead ? 11 : 10) && y < 15); 
+}

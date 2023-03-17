@@ -200,6 +200,7 @@ void World::GetPath(int aFromX, int aFromY, int aToX, int aToY, std::list<Pathma
 
 PathmapTile* World::GetTile(int aFromX, int aFromY)
 {
+
 	for(std::list<PathmapTile*>::iterator list_iter = myPathmapTiles.begin(); list_iter != myPathmapTiles.end(); list_iter++)
 	{
 		PathmapTile* tile = *list_iter;
@@ -244,23 +245,7 @@ bool World::Pathfind(PathmapTile* aFromTile, PathmapTile* aToTile, std::list<Pat
 	if (aFromTile == aToTile)
 		return true;
 
-	std::list<PathmapTile*> neighborList;
-
-	PathmapTile* up = GetTile(aFromTile->myX, aFromTile->myY - 1);
-	if (up && !up->myIsVisitedFlag && !up->myIsBlockingFlag && ListDoesNotContain(up, aList))
-		neighborList.push_front(up);
-
-	PathmapTile* down = GetTile(aFromTile->myX, aFromTile->myY + 1);
-	if (down && !down->myIsVisitedFlag && !down->myIsBlockingFlag && ListDoesNotContain(down, aList))
-		neighborList.push_front(down);
-
-	PathmapTile* right = GetTile(aFromTile->myX + 1, aFromTile->myY);
-	if (right && !right->myIsVisitedFlag && !right->myIsBlockingFlag && ListDoesNotContain(right, aList))
-		neighborList.push_front(right);
-
-	PathmapTile* left = GetTile(aFromTile->myX - 1, aFromTile->myY);
-	if (left && !left->myIsVisitedFlag && !left->myIsBlockingFlag && ListDoesNotContain(left, aList))
-		neighborList.push_front(left);
+	std::list<PathmapTile*> neighborList = getNeighbours(aFromTile->myX, aFromTile->myY, aList);
 
 	neighborList.sort(SortFromGhostSpawn);
 
@@ -277,4 +262,46 @@ bool World::Pathfind(PathmapTile* aFromTile, PathmapTile* aToTile, std::list<Pat
 	}
 
 	return false;
+}
+
+std::list<PathmapTile*> World::getNeighbours(int x, int y, std::list<PathmapTile*>& aList) {
+	std::list<PathmapTile*> neighborList;
+
+	PathmapTile* up = GetTile(x, y - 1);
+	if (up && !up->myIsVisitedFlag && !up->myIsBlockingFlag && ListDoesNotContain(up, aList))
+		neighborList.push_front(up);
+
+	PathmapTile* down = GetTile(x, y + 1);
+	if (down && !down->myIsVisitedFlag && !down->myIsBlockingFlag && ListDoesNotContain(down, aList))
+		neighborList.push_front(down);
+
+	PathmapTile* right = GetTile(x + 1, y);
+	if (right && !right->myIsVisitedFlag && !right->myIsBlockingFlag && ListDoesNotContain(right, aList))
+		neighborList.push_front(right);
+
+	PathmapTile* left = GetTile(x - 1, y);
+	if (left && !left->myIsVisitedFlag && !left->myIsBlockingFlag && ListDoesNotContain(left, aList))
+		neighborList.push_front(left);
+
+	return neighborList;
+}
+
+float World::getDistance(PathmapTile* tileFrom, Vector2f outOfBounds) {
+	float distX = tileFrom->myX - outOfBounds.myX;
+	float distY = tileFrom->myY - outOfBounds.myY;
+
+	return sqrt(pow(distX, 2.0) + pow(distY, 2.0));
+
+}
+
+Vector2f World::getSpawnExitVector() {
+	return{ 13, 9 };
+}
+
+Vector2f World::getTeleportAVector() {
+	return{ 0, 13 };
+}
+
+Vector2f World::getTeleportBVector() {
+	return{ 26, 13 };
 }
