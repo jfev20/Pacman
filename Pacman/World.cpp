@@ -21,7 +21,7 @@ void World::Init(Drawer* myDrawer)
 {
 	std::list<std::string> paths;
 	paths.push_front("playfield.png");
-	environment = Graphic::Create(myDrawer, paths, 1024, 768); // magic number
+	environment = Graphic::Create(myDrawer, paths, 1024, 768);
 	environment->SetImage("playfield.png");
 	
 	InitPathmap();
@@ -286,14 +286,6 @@ std::list<PathmapTile*> World::getNeighbours(int x, int y, std::list<PathmapTile
 	return neighborList;
 }
 
-/*float World::getDistance(PathmapTile* tileFrom, PathmapTile* tileTo) {
-	float distX = tileFrom->myX - tileTo->myX;
-	float distY = tileFrom->myY - tileTo->myY;
-
-	return sqrt(pow(distX,2.0)+pow(distY,2.0));
-
-}*/
-
 float World::getDistance(PathmapTile* tileFrom, Vector2f outOfBounds) {
 	float distX = tileFrom->myX - outOfBounds.myX;
 	float distY = tileFrom->myY - outOfBounds.myY;
@@ -303,7 +295,7 @@ float World::getDistance(PathmapTile* tileFrom, Vector2f outOfBounds) {
 }
 
 Vector2f World::getSpawnExitVector() {
-	return{ 13, 10 };
+	return{ 13, 9 };
 }
 
 Vector2f World::getTeleportAVector() {

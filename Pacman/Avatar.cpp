@@ -25,12 +25,11 @@ int Avatar::ReturnGraphicIndex(std::string anImage) {
 
 void Avatar::Update(float aTime, World* aWorld)
 {
-	int tileSize = 22; // magic number
+	int tileSize = 22;
 	
 	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
 	direction = destination - myPosition;
 
-	//std::cout << "Avatar: [ " << myCurrentTileX << ", " << myCurrentTileY << " ] \n";
 	float distanceToMove = aTime * speed;
 
 	if (distanceToMove > direction.Length())
@@ -59,7 +58,7 @@ void Avatar::UpdateFacingDirection(Vector2f dir, float aTime) {
 
 void Avatar::UpdateGraphicAnimation(float aTime) {
 	timer.IncrementTime(aTime);
-	int currIndex = ReturnGraphicIndex(gameEntityGraphic->GetImage());  // game crash on death due to currentDirectionGraphics having a size of 0
+	int currIndex = ReturnGraphicIndex(gameEntityGraphic->GetImage());
 	if (timer.Compare()) {
 		selectedAnimation = ((currIndex + 1) % currentDirectionGraphics.size());
 		gameEntityGraphic->SetImage(currentDirectionGraphics[selectedAnimation]);

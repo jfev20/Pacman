@@ -32,13 +32,13 @@ private:
 	void UpdateScore(int aScore);
 	void UpdateLives(int aLife);
 	void UpdateFPS(int frames);
+	void UpdateEndText(bool win);
 
 	void ApplyToAllGhosts(std::function<void(Ghost *aGhost)>func);
 
 	Drawer* myDrawer;
 
 	float myTimeToNextUpdate;
-	float myGhostGhostCounter;
 
 	int myLives;
 	int myScore;
@@ -47,6 +47,8 @@ private:
 	std::string scoreString;
 	std::string livesString;
 	std::string fpsString;
+	std::string endGameString;
+	int dotCounter;
 
 	Vector2f myNextMovement;
 	Vector2f target;

@@ -100,6 +100,7 @@ Pacman::Pacman(Drawer* aDrawer)
 	UpdateScore(0);
 	UpdateLives(0);
 	UpdateFPS(0);
+	dotCounter = 244;
 }
 
 Pacman::~Pacman(void)
@@ -118,18 +119,10 @@ bool Pacman::Update(float aTime)
 	if (!UpdateInput())
 		return false;
 
-	if (CheckWinCondition())
+	if (CheckWinCondition() || myLives <= 0)
 	{
-		myDrawer->DrawText("You win!", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 70);
 		return true;
 	}
-	else if (myLives <= 0)
-	{
-		myDrawer->DrawText("You lose!", "freefont-ttf\\sfd\\FreeMono.ttf", 20, 70);	
-		return true;
-	}
-
-	std::list<Ghost*>::iterator allGhostItr;
 
 	MoveAvatar();
 	myAvatar->Update(aTime, myWorld);
@@ -137,46 +130,42 @@ bool Pacman::Update(float aTime)
 	Vector2f avatarPos = myAvatar->GetPosition();
 
 	ApplyToAllGhosts([this, aTime](Ghost *aGhost) {
-		aGhost->Update(aTime, myWorld); // move ghost
+		aGhost->Update(aTime, myWorld);
 	});
 
-	if (myWorld->HasIntersectedDot(avatarPos))
+	if (myWorld->HasIntersectedDot(avatarPos)) {
 		UpdateScore(10);
-
-	myGhostGhostCounter -= aTime; // frightened timer
+		dotCounter -= 1;
+	}
 
 	if (myWorld->HasIntersectedBigDot(avatarPos))
 	{
 		UpdateScore(20);
-		myGhostGhostCounter = 20.f;
-
-		ApplyToAllGhosts([](Ghost *aGhost) {
-			aGhost->myIsClaimableFlag = true;
+		dotCounter -= 1;
+		ApplyToAllGhosts([this](Ghost *aGhost) {
+			aGhost->SetFrightenedState();
 		});
 	}
-	ApplyToAllGhosts([this, avatarPos](Ghost *aGhost) {
-		if (myGhostGhostCounter <= 0)
-		{
-			aGhost->myIsClaimableFlag = false;
-		}
-
+	ApplyToAllGhosts([this, avatarPos, aTime](Ghost *aGhost) {
 		if ((aGhost->GetPosition() - avatarPos).Length() < 10.f)
 		{
-			if (myGhostGhostCounter <= 0.f)
+			if (!aGhost->isFrightened())
 			{
 				UpdateLives(-1);
 
 				myAvatar->SetPosition(Vector2f(13,22)*22);
-				// reset all ghost positions to spawn
 				ApplyToAllGhosts([](Ghost *aGhost) {
+					aGhost->SetNormalState();
 					aGhost->SetPosition(aGhost->getSpawnPosition()*22);
 				});
+				if (myLives <= 0) {
+					UpdateEndText(false);
+				}
 				
 			}
 			else if (aGhost->myIsClaimableFlag && !aGhost->myIsDeadFlag)
 			{
 				UpdateScore(50);
-				aGhost->myIsDeadFlag = true;
 				aGhost->Die(myWorld);
 			}
 		}
@@ -209,7 +198,7 @@ bool Pacman::UpdateInput()
 		myNextMovement = Vector2f(-1.f, 0.f);
 
 	if (keystate[SDL_SCANCODE_ESCAPE])
-		return false;
+		return true;
 
 	return true;
 }
@@ -230,12 +219,25 @@ void Pacman::MoveAvatar()
 
 bool Pacman::CheckWinCondition()
 {
-	return false; // check if current score is equal to max score
+	return (dotCounter <= 0); // return true if all dots are eaten
+}
+
+void Pacman::UpdateEndText(bool win) {
+
+	endGameString = win ? "You win!" : "You lose!";
+
+	std::stringstream endGameStream;
+	endGameStream << endGameString;
+	endGameString = endGameStream.str();
+
 }
 
 void Pacman::UpdateScore(int aScore) {
 
 	myScore += aScore;
+	if (CheckWinCondition()) {
+		UpdateEndText(true);
+	}
 
 	std::stringstream scoreStream;
 	scoreStream << "Score " << myScore;
@@ -275,6 +277,9 @@ bool Pacman::Draw()
 	myDrawer->DrawText(scoreString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 20, 50);
 	myDrawer->DrawText(livesString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 20, 80);
 	myDrawer->DrawText(fpsString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 880, 50);
-
+	if (CheckWinCondition() || myLives <= 0)
+	{
+		myDrawer->DrawText(endGameString.c_str(), "freefont-ttf\\sfd\\FreeMono.ttf", 450, 410);
+	}
 	return true;
 }

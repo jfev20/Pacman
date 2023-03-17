@@ -55,14 +55,6 @@ SDL_Texture* Drawer::GetTexture(SDL_Surface* aSurface) {
 
 void Drawer::Draw(SDL_Texture* texture, SDL_Rect boundingBox, int aCellX, int aCellY)
 {
-	/*SDL_Surface* surface = IMG_Load( anImage ) ;
-
-	if (!surface)
-		return;
-
-	SDL_Texture* optimizedSurface = SDL_CreateTextureFromSurface(myRenderer, surface);
-	*/
-
     SDL_Rect posRect ;
     posRect.x = aCellX;
     posRect.y = aCellY;
