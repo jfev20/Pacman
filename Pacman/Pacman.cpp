@@ -36,7 +36,6 @@ Pacman::Pacman(Drawer* aDrawer)
 , myScore(0)
 , myFps(0)
 , myLives(3)
-, myGhostGhostCounter(0.f)
 {
 	Graphic* avatarGraphic = nullptr;
 	Graphic* redGhostGraphic = nullptr;
